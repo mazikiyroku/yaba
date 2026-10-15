@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>【非公式】まじヤバ記録保管所</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+  --bg: #F2F4F7;
+  --surface: #FFFFFF;
+  --surface-2: #E7EBF1;
+  --line: #C4CCD8;
+  --fg: #1B2230;
+  --fg-muted: #4A5568;
+  --accent: #8B1A3A;
+  --accent-soft: #F5E2E8;
+  --on-accent: #FFFFFF;
+  --bar: #7A1631;
+  --on-bar: #FFFFFF;
+  --focus: #0B5FFF;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141922; --surface: #1C2330; --surface-2: #252E3E; --line: #3A4558;
+    --fg: #E6E9EF; --fg-muted: #AAB4C5; --accent: #F29BB3; --accent-soft: #3A1F2B;
+    --on-accent: #2A0A14; --bar: #5C1B30; --on-bar: #FBEFF2; --focus: #8FB4FF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141922; --surface: #1C2330; --surface-2: #252E3E; --line: #3A4558;
+  --fg: #E6E9EF; --fg-muted: #AAB4C5; --accent: #F29BB3; --accent-soft: #3A1F2B;
+  --on-accent: #2A0A14; --bar: #5C1B30; --on-bar: #FBEFF2; --focus: #8FB4FF;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.7;
+  padding-inline: 16px; padding-block: 24px 64px;
+}
+.wrap { max-width: 1120px; margin-inline: auto; display: flex; flex-direction: column; gap: 16px; }
+h1, h2, p { margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.site-head { display: flex; flex-direction: column; gap: 2px; padding-bottom: 4px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line-height: 1.3; letter-spacing: .04em; }
+.lede { color: var(--fg-muted); white-space: pre-line; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.search { flex: 1 1 240px; min-width: 0; }
+.search input {
+  width: 100%; min-height: 44px; padding: 8px 14px; border: 2px solid var(--line); border-radius: 8px;
+  background: var(--surface);
+}
+.search input::placeholder { color: var(--fg-muted); opacity: 1; }
+.announces { display: flex; flex-direction: column; gap: 8px; }
+.announce {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 14px;
+  border: 2px solid var(--accent); border-radius: 8px; background: var(--accent-soft);
+}
+.announce-title { padding: 0 10px; border-radius: 6px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.announce-text { min-width: 0; overflow-wrap: anywhere; }
+.announce a { color: var(--fg); font-weight: 700; text-underline-offset: 3px; }
+.announce-until { margin-left: auto; font-size: .85rem; color: var(--fg-muted); }
+.period { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.period-label { font-weight: 700; }
+.period input {
+  min-width: 0; min-height: 44px; padding: 8px 10px; border: 2px solid var(--line); border-radius: 8px;
+  background: var(--surface);
+}
+.btn {
+  min-height: 44px; padding: 8px 16px; border: 2px solid var(--line); border-radius: 8px;
+  background: var(--surface); font-weight: 700;
+}
+.btn:hover { border-color: var(--accent); }
+.btn[disabled] { color: var(--fg-muted); background: var(--surface-2); cursor: not-allowed; border-style: dashed; }
+.panels { display: flex; flex-direction: column; gap: 12px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.panel-head {
+  margin: 0; display: flex; align-items: center; gap: 12px; padding: 6px 14px 6px 8px;
+  background: var(--bar); color: var(--on-bar);
+  font-family: var(--font-display); font-weight: 700; font-size: 1rem;
+}
+.panel-toggle {
+  width: 44px; height: 44px; flex: none; display: grid; place-items: center; padding: 0;
+  border: 0; border-radius: 8px; background: transparent; color: var(--on-bar);
+}
+.panel-toggle:hover { background: color-mix(in srgb, var(--on-bar) 20%, transparent); }
+.panel-toggle:focus-visible { outline: 3px solid var(--on-bar); outline-offset: 2px; }
+.tri { width: 18px; height: 15px; background: currentColor; clip-path: polygon(0 0, 100% 0, 50% 100%); transition: transform .15s; }
+.panel-toggle[aria-expanded="false"] .tri { transform: rotate(-90deg); }
+.panel-name { min-width: 0; overflow-wrap: anywhere; }
+.panel-meta { margin-left: auto; font-family: var(--font-body); font-weight: 400; font-size: .85rem; white-space: nowrap; }
+.panel-body { padding: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 12px;
+  border: 2px solid var(--line); border-radius: 8px; background: var(--surface);
+  cursor: pointer; user-select: none; min-width: 0;
+}
+.chip input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex: none; cursor: inherit; }
+.chip:hover { border-color: var(--accent); }
+.chip:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+.chip-count { font-size: .8rem; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.chip.is-on { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.chip.is-empty { color: var(--fg-muted); background: var(--surface-2); border-style: dashed; cursor: not-allowed; }
+.chip.is-empty:hover { border-color: var(--line); }
+.result-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding-top: 4px; }
+.result-count { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; }
+.result-range { color: var(--fg-muted); font-size: .9rem; }
+.sel-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sel-chip {
+  min-height: 34px; padding: 2px 12px; border: 2px solid var(--accent); border-radius: 8px;
+  background: var(--accent-soft); font-weight: 700; font-size: .9rem;
+}
+.sel-chip:hover { background: var(--surface); }
+.result-tools { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.result-head .btn { min-height: 34px; padding: 2px 12px; font-size: .9rem; }
+.sort { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; font-weight: 700; }
+.sort select { min-height: 34px; padding: 2px 8px; border: 2px solid var(--line); border-radius: 8px; background: var(--surface); font-weight: 700; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 16px; }
+.card { display: flex; flex-direction: column; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.thumb { display: block; aspect-ratio: 16 / 9; max-width: 100%; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb-none { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--fg-muted); font-size: .9rem; letter-spacing: .08em; }
+.card-body { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 14px; min-width: 0; flex: 1; }
+.card-title { font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
+.card-title a { color: var(--fg); text-decoration: none; }
+.card-title a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: .85rem; color: var(--fg-muted); }
+.platform { display: inline-flex; align-items: center; gap: 6px; padding: 1px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--fg); background: var(--surface-2); font-weight: 700; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.date { font-variant-numeric: tabular-nums; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
+.tag { padding: 1px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: .8rem; line-height: 1.6; }
+.tag:hover { border-color: var(--accent); }
+.tag.is-on { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.empty { padding: 32px 16px; text-align: center; border: 2px dashed var(--line); border-radius: 10px; background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.pager { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; padding-top: 8px; }
+.pager .btn { min-width: 44px; padding-inline: 12px; }
+.pager .btn[aria-current="page"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.pager .gap { color: var(--fg-muted); padding-inline: 4px; }
+.site-foot { display: flex; flex-direction: column; gap: 2px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--fg-muted); font-size: .85rem; }
+@media (prefers-reduced-motion: reduce) { .tri { transition: none; } }
+</style>
+<div class="wrap">
+  <header class="site-head">
+    <h1 id="site-title">【非公式】まじヤバ記録保管所    </h1>
+    <p class="lede" id="site-lede"></p>
+  </header>
+  <div class="announces" id="announces" aria-live="polite" hidden></div>
+  <div class="toolbar">
+    <div class="search"><input id="q" type="search" placeholder="タイトルで検索" aria-label="タイトルで検索" autocomplete="off"></div>
+    <div class="period" role="group" aria-label="投稿日の期間で絞り込み">
+      <span class="period-label">投稿日</span>
+      <input id="d-from" type="date" aria-label="期間の開始日">
+      <span aria-hidden="true">〜</span>
+      <input id="d-to" type="date" aria-label="期間の終了日">
+    </div>
+  </div>
+  <div class="panels" id="panels"></div>
+  <div class="result-head" id="results-top">
+    <p class="result-count" id="count" aria-live="polite"></p>
+    <span class="result-range" id="range"></span>
+    <div class="sel-chips" id="sel-chips"></div>
+    <div class="result-tools">
+      <label class="sort">並び順
+        <select id="sort">
+          <option value="desc">新しい順(降順)</option>
+          <option value="asc">古い順(昇順)</option>
+        </select>
+      </label>
+      <button class="btn" id="clear" type="button">条件をすべて解除</button>
+    </div>
+  </div>
+  </div>
+  <div id="list"></div>
+  <nav class="pager" id="pager" aria-label="ページ送り"></nav>
+  <footer class="site-foot">
+    <p>当サイトは一部にAIを使用しておりますが、ページのUI・レイアウト制作のみに限られます。</p>
+    <p>掲載されているデータの収集・入力・編集作業はすべて人力で行っており、AIに学習させる作業は行っておりません。</p>
+  </footer>
+</div>
+<script>
+(function () {
+  const SITE = {
+    title: "【非公式】まじヤバ記録保管所",
+    lede: "まじめにヤバシティ関係の情報を記録する非公式サイトです。\n最終更新：2026/10/11　諸々を更新しました",
+    pageSize: 50
+  };
+  const TAG_GROUPS = [
+    { name: "動画・コンテンツの種類", tags: ["ライブ", "MV", "バラエティ", "配信", "舞台裏", "インタビュー"] },
+    { name: "出演者", tags: ["メンバーA", "メンバーB", "メンバーC", "メンバーD", "メンバーE", "メンバーF"] },
+    { name: "コラボ・近郊", tags: ["コラボ", "近郊"] }
+  ];
+  const EXCLUDE_RULES = [
+    { label: "近郊を含むコラボ動画・配信を除く", all: ["コラボ", "近郊"] },
+    { label: "近郊を含まないコラボ動画・配信を除く", all: ["コラボ"], not: ["近郊"] }
+  ];
+  const PLATFORM_COLORS = {
+    "YouTube": "#D55E00", "ニコニコ動画": "#56B4E9", "TikTok": "#009E73",
+    "Instagram": "#CC79A7", "公式サイト": "#0072B2", "X": "#8A8F99"
+  };
+  const FALLBACK_THUMBS = [];
+  const ANNOUNCEMENTS = [
+    { title: "開催中", text: "ちょこっとヤバシティ × animate cafe", url: "https://www.animatecafe.jp/event/ac000814", linkText: "イベントページ", from: "2026/10/01 00:00", to: "2026/12/6 23:59" },
+    { title: "予告", text: "【サンプル】この文章は2030年になるまで表示されません。", from: "2030/01/01 12:00" }
+  ];
+  const CONTENTS = [
+    { title: "【サンプル】全国ツアー最終公演ダイジェスト", url: "https://www.youtube.com/watch?v=sample0001", platform: "YouTube", date: "2026-09-28", tags: ["ライブ", "メンバーA", "メンバーB", "メンバーC"] },
+
+
+];
+  function normDate(s) {
+    const m = String(s || "").normalize("NFKC").match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})$/);
+    return m ? m[1] + "-" + m[2].padStart(2, "0") + "-" + m[3].padStart(2, "0") : "";
+  }
+  const ITEMS = CONTENTS
+    .map((c, i) => ({ ...c, tags: c.tags || [], _i: i, _d: normDate(c.date) }))
+    .sort((a, b) => b._d.localeCompare(a._d) || a._i - b._i);
+  const norm = (s) => String(s || "").normalize("NFKC").toLowerCase();
+  const ytId = (url) => {
+    const m = String(url || "").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{6,})/);
+    return m ? m[1] : null;
+  };
+  const thumbOf = (c) => c.thumb || (ytId(c.url) ? `https://img.youtube.com/vi/${ytId(c.url)}/mqdefault.jpg` : "");
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(props || {})) {
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (v === true) el.setAttribute(k, "");
+      else if (v !== false && v != null) el.setAttribute(k, v);
+    }
+    for (const kid of kids.flat()) if (kid != null) el.append(kid);
+    return el;
+  }
+  const $ = (id) => document.getElementById(id);
+  const groups = TAG_GROUPS.map((g) => ({ name: g.name, tags: [...g.tags] }));
+  const known = new Set(groups.flatMap((g) => g.tags));
+  const extra = [];
+  ITEMS.forEach((c) => c.tags.forEach((t) => { if (!known.has(t)) { known.add(t); extra.push(t); } }));
+  if (extra.length) groups.push({ name: "その他のタグ", tags: extra });
+  const state = { selected: new Set(), excluded: new Set(), query: "", from: "", to: "", order: "desc", page: 1 };
+  const chipRefs = new Map();
+  const ruleRefs = new Map();
+  const panelRefs = [];
+  document.title = SITE.title;
+  $("site-title").textContent = SITE.title;
+  $("site-lede").textContent = SITE.lede;
+  let panelNo = 0;
+  function addPanel(g, fill) {
+    const bodyId = "panel-body-" + panelNo++;
+    const meta = h("span", { class: "panel-meta" });
+    const toggle = h("button", { class: "panel-toggle", type: "button", "aria-expanded": "true", "aria-controls": bodyId, "aria-label": g.name + "の一覧を閉じる" },
+      h("span", { class: "tri", "aria-hidden": "true" }));
+    const body = h("div", { class: "panel-body", id: bodyId });
+    fill(body);
+    const p = { group: g, toggle, body, meta };
+    toggle.addEventListener("click", () => setOpen(p, toggle.getAttribute("aria-expanded") !== "true"));
+    $("panels").append(h("section", { class: "panel" },
+      h("h2", { class: "panel-head" }, toggle, h("span", { class: "panel-name", text: g.name }), meta), body));
+    panelRefs.push(p);
+  }
+  groups.forEach((g) => addPanel(g, (body) => {
+    g.tags.forEach((t) => {
+      const input = h("input", { type: "checkbox", value: t });
+      const count = h("span", { class: "chip-count" });
+      const label = h("label", { class: "chip" }, input, h("span", { text: t }), count);
+      input.addEventListener("change", () => setTag(t, input.checked));
+      body.append(label);
+      chipRefs.set(t, { label, input, count });
+    });
+  }));
+  if (EXCLUDE_RULES.length) addPanel({ name: "除外する条件", tags: [], rules: EXCLUDE_RULES }, (body) => {
+    EXCLUDE_RULES.forEach((r) => {
+      const input = h("input", { type: "checkbox", value: r.label });
+      const count = h("span", { class: "chip-count" });
+      const label = h("label", { class: "chip" }, input, h("span", { text: "− " + r.label }), count);
+      input.addEventListener("change", () => setRule(r.label, input.checked));
+      body.append(label);
+      ruleRefs.set(r.label, { label, input, count, rule: r });
+    });
+  });
+  function setOpen(p, open) {
+    p.toggle.setAttribute("aria-expanded", String(open));
+    p.toggle.setAttribute("aria-label", p.group.name + (open ? "の一覧を閉じる" : "の一覧を開く"));
+    p.body.hidden = !open;
+  }
+  function updateMeta() {
+    panelRefs.forEach((p) => {
+      const n = p.group.tags.filter((t) => state.selected.has(t)).length
+        + (p.group.rules || []).filter((r) => state.excluded.has(r.label)).length;
+      p.meta.textContent = n ? "選択中 " + n : "";
+    });
+  }
+  function setTag(tag, on) {
+    on ? state.selected.add(tag) : state.selected.delete(tag);
+    state.page = 1;
+    render();
+  }
+  function setRule(label, on) {
+    on ? state.excluded.add(label) : state.excluded.delete(label);
+    state.page = 1;
+    render();
+  }
+  function setPeriod(from, to) {
+    state.from = from; state.to = to;
+    $("d-from").value = from; $("d-to").value = to;
+    state.page = 1;
+    render();
+  }
+  function clearAll() {
+    state.selected.clear(); state.excluded.clear(); state.query = ""; $("q").value = "";
+    state.from = ""; state.to = ""; $("d-from").value = ""; $("d-to").value = "";
+    state.page = 1; render();
+  }
+  $("clear").addEventListener("click", clearAll);
+  $("sort").addEventListener("change", (e) => { state.order = e.target.value; state.page = 1; render(); });
+  $("q").addEventListener("input", (e) => { state.query = norm(e.target.value); state.page = 1; render(); });
+  $("d-from").addEventListener("input", (e) => { state.from = e.target.value; state.page = 1; render(); });
+  $("d-to").addEventListener("input", (e) => { state.to = e.target.value; state.page = 1; render(); });
+  function render(scrollTop) {
+    const sel = [...state.selected];
+    const swap = state.from && state.to && state.from > state.to;
+    const lo = swap ? state.to : state.from, hi = swap ? state.from : state.to;
+    const inPeriod = (c) => (!lo || (c._d && c._d >= lo)) && (!hi || (c._d && c._d <= hi));
+    const base = ITEMS.filter((c) => sel.every((t) => c.tags.includes(t)) && (!state.query || norm(c.title).includes(state.query)) && inPeriod(c));
+    const isHit = (r, c) => r.all.every((t) => c.tags.includes(t)) && (r.not || []).every((t) => !c.tags.includes(t));
+    const active = [...ruleRefs.values()].filter((x) => state.excluded.has(x.rule.label)).map((x) => x.rule);
+    const hits = base.filter((c) => !active.some((r) => isHit(r, c)));
+    if (state.order === "asc") hits.sort((a, b) => (!a._d - !b._d) || a._d.localeCompare(b._d) || a._i - b._i);    ruleRefs.forEach((x) => {
+      const on = state.excluded.has(x.rule.label), others = active.filter((r) => r !== x.rule);
+      const n = base.filter((c) => isHit(x.rule, c) && !others.some((r) => isHit(r, c))).length;
+      x.input.checked = on;
+      x.input.disabled = !on && n === 0;
+      x.count.textContent = "外れる " + n + " 件";
+      x.label.classList.toggle("is-on", on);
+      x.label.classList.toggle("is-empty", !on && n === 0);
+    });
+    const counts = new Map();
+    hits.forEach((c) => c.tags.forEach((t) => counts.set(t, (counts.get(t) || 0) + 1)));
+    chipRefs.forEach((r, t) => {
+      const on = state.selected.has(t), n = on ? hits.length : (counts.get(t) || 0);
+      r.input.checked = on;
+      r.input.disabled = !on && n === 0;
+      r.count.textContent = n;
+      r.label.classList.toggle("is-on", on);
+      r.label.classList.toggle("is-empty", !on && n === 0);
+    });
+    updateMeta();
+    const total = hits.length, pages = Math.max(1, Math.ceil(total / SITE.pageSize));
+    state.page = Math.min(state.page, pages);
+    const start = (state.page - 1) * SITE.pageSize, end = Math.min(start + SITE.pageSize, total);
+    $("count").textContent = `該当 ${total} 件`;
+    $("range").textContent = total ? `(全 ${ITEMS.length} 件中 / ${start + 1}〜${end} 件目を表示)` : `(全 ${ITEMS.length} 件中)`;
+    const chips = $("sel-chips"); chips.replaceChildren();
+    sel.forEach((t) => chips.append(h("button", { class: "sel-chip", type: "button", "aria-label": t + "を解除", onclick: () => setTag(t, false), text: "✓ " + t + " ×" })));
+    active.forEach((r) => chips.append(h("button", { class: "sel-chip", type: "button", "aria-label": r.label + "を解除", onclick: () => setRule(r.label, false), text: "− " + r.label + " ×" })));
+    if (lo || hi) chips.append(h("button", { class: "sel-chip", type: "button", "aria-label": "期間を解除", onclick: () => setPeriod("", ""),
+      text: "期間 " + (lo ? lo.replaceAll("-", "/") : "") + "〜" + (hi ? hi.replaceAll("-", "/") : "") + " ×" }));
+    $("clear").disabled = !sel.length && !state.query && !active.length && !lo && !hi;
+    const list = $("list"); list.replaceChildren();
+    if (!total) {
+      list.append(h("div", { class: "empty" },
+        h("p", { text: "条件に合う動画・コンテンツはありません。" }),
+        h("p", { text: "選んだ条件を減らすと見つかるかもしれません。" }),
+        h("button", { class: "btn", type: "button", onclick: clearAll, text: "条件をすべて解除" })));
+    } else {
+      list.append(h("div", { class: "grid" }, hits.slice(start, end).map(card)));
+    }
+    renderPager(pages);
+    if (scrollTop) $("results-top").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+  function card(c) {
+    const src = thumbOf(c);
+    const noneText = () => h("div", { class: "thumb-none", text: "サムネなし" });
+    const none = () => {
+      const r = FALLBACK_THUMBS.find((f) =>
+        (!f.platform || [].concat(f.platform).includes(c.platform)) &&
+        (f.tags || []).every((t) => c.tags.includes(t)) &&
+        (f.not || []).every((t) => !c.tags.includes(t)));
+      if (!r) return noneText();
+      const img = h("img", { src: r.image, alt: "サムネなし" });
+      img.addEventListener("error", () => img.replaceWith(noneText()));
+      return img;
+    };
+    const thumb = h("a", { class: "thumb", href: c.url, target: "_blank", rel: "noopener", tabindex: "-1", "aria-hidden": "true" });
+    if (src) {
+      const img = h("img", { src, alt: "", loading: "lazy", referrerpolicy: "no-referrer" });
+      img.addEventListener("error", () => img.replaceWith(none()));
+      thumb.append(img);
+    } else thumb.append(none());
+    const dot = h("span", { class: "dot", "aria-hidden": "true" });
+    dot.style.background = PLATFORM_COLORS[c.platform] || "#8A8F99";
+    return h("article", { class: "card" }, thumb,
+      h("div", { class: "card-body" },
+        h("h3", { class: "card-title", style: "margin:0;font-size:1rem" }, h("a", { href: c.url, target: "_blank", rel: "noopener", text: c.title })),
+        h("div", { class: "card-meta" },
+          h("span", { class: "platform" }, dot, h("span", { text: c.platform || "不明" })),
+          (c._d || c.date) ? h("span", { class: "date", text: c._d ? c._d.replaceAll("-", "/") : c.date }) : null),
+        h("div", { class: "tags" }, c.tags.map((t) => {
+          const on = state.selected.has(t);
+          return h("button", { class: "tag" + (on ? " is-on" : ""), type: "button", "aria-pressed": String(on), onclick: () => setTag(t, !on), text: (on ? "✓ " : "") + t });
+        }))));
+  }
+  function renderPager(pages) {
+    const nav = $("pager"); nav.replaceChildren();
+    if (pages <= 1) return;
+    const go = (p) => { state.page = p; render(true); };
+    const cur = state.page;
+    nav.append(h("button", { class: "btn", type: "button", disabled: cur === 1, onclick: () => go(cur - 1), text: "前へ" }));
+    const nums = pages <= 7 ? Array.from({ length: pages }, (_, i) => i + 1)
+      : [...new Set([1, cur - 1, cur, cur + 1, pages].filter((p) => p >= 1 && p <= pages))].sort((a, b) => a - b);
+    let prev = 0;
+    nums.forEach((p) => {
+      if (p - prev > 1) nav.append(h("span", { class: "gap", "aria-hidden": "true", text: "…" }));
+      nav.append(h("button", { class: "btn", type: "button", "aria-label": p + "ページ目", "aria-current": p === cur ? "page" : null, onclick: () => go(p), text: p }));
+      prev = p;
+    });
+    nav.append(h("button", { class: "btn", type: "button", disabled: cur === pages, onclick: () => go(cur + 1), text: "次へ" }));
+  }
+  function parseJst(s, isEnd) {
+    if (!s) return null;
+    const m = String(s).normalize("NFKC").trim().match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2})(?:\D+(\d{1,2}))?)?\D*$/);
+    if (!m) return { ms: NaN };
+    const p2 = (v) => String(v).padStart(2, "0");
+    const hasTime = m[4] !== undefined;
+    const hh = hasTime ? m[4] : isEnd ? "23" : "0", mi = hasTime ? (m[5] || "0") : isEnd ? "59" : "0", ss = isEnd ? "59" : "00";
+    const day = m[1] + "-" + p2(m[2]) + "-" + p2(m[3]);
+    const back = new Date(Date.parse(day + "T00:00:00+09:00") + 9 * 3600000);
+    const ok = !isNaN(back) && back.toISOString().slice(0, 10) === day && +hh < 24 && +mi < 60;
+    return { ms: ok ? Date.parse(day + "T" + p2(hh) + ":" + p2(mi) + ":" + ss + (isEnd ? ".999" : ".000") + "+09:00") : NaN,
+             label: m[1] + "/" + p2(m[2]) + "/" + p2(m[3]) + (hasTime ? " " + p2(hh) + ":" + p2(mi) : "") };
+  }
+  function renderAnnouncements() {
+    const now = Date.now(), box = $("announces");
+    const live = ANNOUNCEMENTS.filter((a) => {
+      const f = parseJst(a.from, false), t = parseJst(a.to, true);
+      if ((f && isNaN(f.ms)) || (t && isNaN(t.ms))) return false;
+      return (!f || now >= f.ms) && (!t || now <= t.ms);
+    });
+    box.replaceChildren(...live.map((a) => {
+      const t = parseJst(a.to, true);
+      return h("div", { class: "announce" },
+        a.title ? h("strong", { class: "announce-title", text: a.title }) : null,
+        h("span", { class: "announce-text", text: a.text }),
+        /^https?:\/\//.test(a.url || "") ? h("a", { href: a.url, target: "_blank", rel: "noopener", text: a.linkText || "詳しく見る" }) : null,
+        t ? h("span", { class: "announce-until", text: "〜" + t.label + " まで" }) : null);
+    }));
+    box.hidden = !live.length;
+  }
+  renderAnnouncements();
+  setInterval(renderAnnouncements, 60000);
+  render();
+})();
+</script>
