@@ -194,13 +194,13 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
     dataFile: "data.csv",
   };
   const TAG_GROUPS = [
-    { name: "動画・コンテンツの種類", tags: ["動画", "配信", "配信アーカイブ", "GOGOGO", "ラジオ","外部投稿・配信"] },
+    { name: "動画・コンテンツの種類", tags: ["動画", "配信", "配信アーカイブ","配信（録画）" ,"GOGOGO", "ラジオ","外部投稿・配信"] },
     { name: "メンバー", tags: ["鬱先生","エーミール","シャオロン","ショッピ","ゾム","トントン"] },
-    { name: "コラボ相手等", sort: true, tags: ["Akira","Batsu","dtto.","eoheoh","FB777","KIKKUN-MK-Ⅱ","takera","YASU","あろまほっと","おおはらMEN","おらふくん","おんりー","きりやん","クー","ぐちつぼ","しにがみ","しのり","シャークん","しるこ","ズズ","たけぉ","たらこ","ちーの","ドズル","トラゾー","なな湖","ならの","にごんご","ぴくと","ひげおやじ","ひょう太朗","ひろゆき","ふうはや","ぺいんと","ぼんじゅうる","ポン酢野郎","むつー","メッス","もふ","らっだぁ","りもこん","ろぜっくぴん","んそめ","雨栗","越山嘉祈","魁星","金豚きょー","最高コーラ","秋雪こはく","焼きパン","水月ルザク","赤髪のとも","天唄サウ","飛良ひかり","米将軍","堀西","夢咲ひぽぽ","律可","クロノア","みずき","ヒラ"] },
+    { name: "コラボ相手等", sort: true, first: ["コラボ"], tags: ["Akira","Batsu","dtto.","eoheoh","FB777","KIKKUN-MK-Ⅱ","takera","YASU","あろまほっと","おおはらMEN","おらふくん","おんりー","きりやん","クー","ぐちつぼ","しにがみ","しのり","シャークん","しるこ","ズズ","たけぉ","たらこ","ちーの","ドズル","トラゾー","なな湖","ならの","にごんご","ぴくと","ひげおやじ","ひょう太朗","ひろゆき","ふうはや","ぺいんと","ぼんじゅうる","ポン酢野郎","むつー","メッス","もふ","らっだぁ","りもこん","ろぜっくぴん","んそめ","雨栗","越山嘉祈","魁星","金豚きょー","最高コーラ","秋雪こはく","焼きパン","水月ルザク","赤髪のとも","天唄サウ","飛良ひかり","米将軍","堀西","夢咲ひぽぽ","律可","クロノア","みずき","ヒラ"] },
   ];
   const EXCLUDE_RULES = [
-    { label: "近郊を含むコラボ動画・配信を除く", all: ["コラボ", "近郊"] },
-    { label: "近郊を含まないコラボ動画・配信を除く", all: ["コラボ"], not: ["ちーの","ひょう太朗"] }
+    { label: "全てのコラボ動画を非表示にする", all: ["コラボ"] },
+    { label: "近郊コラボのみ表示する", all: ["コラボ"], not: ["ちーの","ひょう太朗"] }
   ];
   const PLATFORM_COLORS = {
     "YouTube": "#ff0033", "Twitch": "#6441a5", "GOGOGO": "#a5b1bf",
@@ -337,7 +337,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
       chipRefs.set(t, { label, input, count });
     });
   }));
-  if (EXCLUDE_RULES.length) addPanel({ name: "除外する条件", tags: [], rules: EXCLUDE_RULES }, (body) => {
+  if (EXCLUDE_RULES.length) addPanel({ name: "その他絞り込み", tags: [], rules: EXCLUDE_RULES }, (body) => {
     EXCLUDE_RULES.forEach((r) => {
       const input = h("input", { type: "checkbox", value: r.label });
       const count = h("span", { class: "chip-count" });
