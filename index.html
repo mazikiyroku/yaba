@@ -178,7 +178,6 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
       <button class="btn" id="clear" type="button">条件をすべて解除</button>
     </div>
   </div>
-  </div>
   <div id="list"></div>
   <nav class="pager" id="pager" aria-label="ページ送り"></nav>
   <footer class="site-foot">
@@ -190,37 +189,89 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
 (function () {
   const SITE = {
     title: "【非公式】まじヤバ記録保管所",
-    lede: "まじめにヤバシティ関係の情報を記録する非公式サイトです。\n最終更新：2026/10/11　諸々を更新しました",
-    pageSize: 50
+    lede: "まじめにヤバシティ関係の情報を記録する非公式サイトです。\n最終更新：2026/10/23　諸々を更新しました",
+    pageSize: 50,
+    dataFile: "data.csv",
   };
   const TAG_GROUPS = [
-    { name: "動画・コンテンツの種類", tags: ["ライブ", "MV", "バラエティ", "配信", "舞台裏", "インタビュー"] },
-    { name: "出演者", tags: ["メンバーA", "メンバーB", "メンバーC", "メンバーD", "メンバーE", "メンバーF"] },
-    { name: "コラボ・近郊", tags: ["コラボ", "近郊"] }
+    { name: "動画・コンテンツの種類", tags: ["動画", "配信", "配信アーカイブ", "GOGOGO", "ラジオ","外部投稿・配信"] },
+    { name: "メンバー", tags: ["鬱先生","エーミール","シャオロン","ショッピ","ゾム","トントン"] },
+    { name: "コラボ相手等", sort: true, tags: ["Akira","Batsu","dtto.","eoheoh","FB777","KIKKUN-MK-Ⅱ","takera","YASU","あろまほっと","おおはらMEN","おらふくん","おんりー","きりやん","クー","ぐちつぼ","しにがみ","しのり","シャークん","しるこ","ズズ","たけぉ","たらこ","ちーの","ドズル","トラゾー","なな湖","ならの","にごんご","ぴくと","ひげおやじ","ひょう太朗","ひろゆき","ふうはや","ぺいんと","ぼんじゅうる","ポン酢野郎","むつー","メッス","もふ","らっだぁ","りもこん","ろぜっくぴん","んそめ","雨栗","越山嘉祈","魁星","金豚きょー","最高コーラ","秋雪こはく","焼きパン","水月ルザク","赤髪のとも","天唄サウ","飛良ひかり","米将軍","堀西","夢咲ひぽぽ","律可"] },
   ];
   const EXCLUDE_RULES = [
     { label: "近郊を含むコラボ動画・配信を除く", all: ["コラボ", "近郊"] },
-    { label: "近郊を含まないコラボ動画・配信を除く", all: ["コラボ"], not: ["近郊"] }
+    { label: "近郊を含まないコラボ動画・配信を除く", all: ["コラボ"], not: ["ちーの","ひょう太朗"] }
   ];
   const PLATFORM_COLORS = {
-    "YouTube": "#D55E00", "ニコニコ動画": "#56B4E9", "TikTok": "#009E73",
-    "Instagram": "#CC79A7", "公式サイト": "#0072B2", "X": "#8A8F99"
+    "YouTube": "#ff0033", "Twitch": "#6441a5", "GOGOGO": "#a5b1bf",
+    "ラジオ": "#378da0", "公式サイト": "#0072B2", "X": "#8A8F99"
   };
   const FALLBACK_THUMBS = [];
   const ANNOUNCEMENTS = [
-    { title: "開催中", text: "ちょこっとヤバシティ × animate cafe", url: "https://www.animatecafe.jp/event/ac000814", linkText: "イベントページ", from: "2026/10/01 00:00", to: "2026/12/6 23:59" },
+    { title: "開催中", text: "ちょこっとヤバシティ展　ここは、まじめにヤバいやつが集まる街", url: "https://art.parco.jp/parcomuseum/detail/?id=2030", linkText: "イベントページ", from: "2026/11/06 00:00", to: "2026/11/30 23:59" },
+    { title: "開催中", text: "ちょこっとヤバシティ × animate cafe", url: "https://www.animatecafe.jp/event/ac000814", linkText: "イベントページ", from: "2026/11/12 00:00", to: "2026/12/6 23:59" },
     { title: "予告", text: "【サンプル】この文章は2030年になるまで表示されません。", from: "2030/01/01 12:00" }
   ];
   const CONTENTS = [
-    { title: "【サンプル】全国ツアー最終公演ダイジェスト", url: "https://www.youtube.com/watch?v=sample0001", platform: "YouTube", date: "2026-09-28", tags: ["ライブ", "メンバーA", "メンバーB", "メンバーC"] },
-
-
 ];
   function normDate(s) {
-    const m = String(s || "").normalize("NFKC").match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})$/);
+    const m = String(s || "").normalize("NFKC").match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D.*)?$/);
     return m ? m[1] + "-" + m[2].padStart(2, "0") + "-" + m[3].padStart(2, "0") : "";
   }
-  const ITEMS = CONTENTS
+  const CSV_COLS = {
+    title: ["title", "タイトル", "題名"],
+    url: ["url", "リンク", "リンク先", "アドレス"],
+    platform: ["platform", "投稿先", "プラットフォーム", "サイト"],
+    date: ["date", "日付", "投稿日"],
+    tags: ["tags", "tag", "タグ"],
+    thumb: ["thumb", "thumbnail", "サムネ", "サムネイル", "サムネ画像"]
+  };
+  function decodeCsv(buf) {
+    try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); }
+    catch (e) { return new TextDecoder("shift_jis").decode(buf); }
+  }
+  function parseCsv(text) {
+    const rows = []; let row = [], cell = "", q = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (q) {
+        if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+        else cell += ch;
+      } else if (ch === '"' && cell === "") q = true;
+      else if (ch === ",") { row.push(cell); cell = ""; }
+      else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && text[i + 1] === "\n") i++;
+        row.push(cell); cell = ""; rows.push(row); row = [];
+      } else cell += ch;
+    }
+    if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+  function rowsFromCsv(text) {
+    const table = parseCsv(text).filter((r) => r.some((c) => c.trim() !== ""));
+    if (!table.length) return [];
+    const head = table[0].map((c) => c.normalize("NFKC").trim().toLowerCase());
+    const col = {};
+    for (const [key, names] of Object.entries(CSV_COLS)) col[key] = head.findIndex((c) => names.includes(c));
+    if (col.title < 0) throw new Error("no title column");
+    return table.slice(1).map((r) => {
+      const get = (k) => (col[k] >= 0 ? (r[col[k]] || "").trim() : "");
+      return {
+        title: get("title"), url: get("url"), platform: get("platform"), date: get("date"),
+        tags: get("tags").split(/[,，、;；|｜]/).map((t) => t.trim()).filter(Boolean),
+        thumb: get("thumb") || undefined
+      };
+    }).filter((c) => c.title || c.url);
+  }
+  function showLoadError(msg) {
+  const e = document.getElementById("load-error");
+  if (!e) return;
+  if (msg) e.textContent = msg;
+  e.hidden = false;
+}
+
+  function boot(csvRows) {
+  const ITEMS = CONTENTS.concat(csvRows)
     .map((c, i) => ({ ...c, tags: c.tags || [], _i: i, _d: normDate(c.date) }))
     .sort((a, b) => b._d.localeCompare(a._d) || a._i - b._i);
   const norm = (s) => String(s || "").normalize("NFKC").toLowerCase();
@@ -242,7 +293,15 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
     return el;
   }
   const $ = (id) => document.getElementById(id);
-  const groups = TAG_GROUPS.map((g) => ({ name: g.name, tags: [...g.tags] }));
+  const groups = TAG_GROUPS.map((g) => {
+    let tags = [...g.tags];
+    if (g.sort) {
+      const first = (g.first || []).filter((t) => tags.includes(t));
+      const rest = tags.filter((t) => !first.includes(t)).sort((a, b) => a.localeCompare(b, "ja"));
+      tags = [...first, ...rest];
+    }
+    return { name: g.name, tags };
+  });
   const known = new Set(groups.flatMap((g) => g.tags));
   const extra = [];
   ITEMS.forEach((c) => c.tags.forEach((t) => { if (!known.has(t)) { known.add(t); extra.push(t); } }));
@@ -459,5 +518,22 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
   renderAnnouncements();
   setInterval(renderAnnouncements, 60000);
   render();
+  }
+
+  if (!SITE.dataFile) boot([]);
+  else {
+    document.getElementById("count").textContent = "読み込み中…";
+    fetch(SITE.dataFile, { cache: "no-cache" })
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error("HTTP " + r.status))))
+      .then(
+        (buf) => {
+          let rows = [];
+          try { rows = rowsFromCsv(decodeCsv(buf)); }
+          catch (e) { showLoadError("データファイルの1行目に「タイトル」の列が見つかりません。1行目を見出し(タイトル / URL / 投稿先 / 日付 / タグ)にしてください。"); }
+          boot(rows);
+        },
+        () => { showLoadError(); boot([]); }
+      );
+  }
 })();
 </script>
