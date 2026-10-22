@@ -99,11 +99,12 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
 .panel-meta { margin-left: auto; font-family: var(--font-body); font-weight: 400; font-size: .85rem; white-space: nowrap; }
 .panel-body { padding: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 12px;
+  display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 3px 9px;
+  font-size: 0.9rem;
   border: 2px solid var(--line); border-radius: 8px; background: var(--surface);
   cursor: pointer; user-select: none; min-width: 0;
 }
-.chip input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex: none; cursor: inherit; }
+.chip input { width: 15px; height: 15px; margin: 0; accent-color: var(--accent); flex: none; cursor: inherit; }
 .chip:hover { border-color: var(--accent); }
 .chip:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
 .chip-count { font-size: .8rem; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
@@ -196,7 +197,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
   const TAG_GROUPS = [
     { name: "動画・コンテンツの種類", tags: ["動画", "配信", "配信アーカイブ","配信（録画）" ,"GOGOGO", "ラジオ","外部投稿・配信"] },
     { name: "メンバー", tags: ["鬱先生","エーミール","シャオロン","ショッピ","ゾム","トントン"] },
-    { name: "コラボ相手等", sort: true, first: ["コラボ","近郊"], tags: ["Akira","Batsu","dtto.","eoheoh","FB777","KIKKUN-MK-Ⅱ","takera","YASU","あろまほっと","おおはらMEN","おらふくん","おんりー","きりやん","クー","ぐちつぼ","しにがみ","しのり","シャークん","しるこ","ズズ","たけぉ","たらこ","ちーの","ドズル","トラゾー","なな湖","ならの","にごんご","ぴくと","ひげおやじ","ひょう太朗","ひろゆき","ふうはや","ぺいんと","ぼんじゅうる","ポン酢野郎","むつー","メッス","もふ","らっだぁ","りもこん","ろぜっくぴん","んそめ","雨栗","越山嘉祈","魁星","金豚きょー","最高コーラ","秋雪こはく","焼きパン","水月ルザク","赤髪のとも","天唄サウ","飛良ひかり","米将軍","堀西","夢咲ひぽぽ","律可","クロノア","みずき","ヒラ","コラボ","近郊"] },
+    { name: "コラボ相手等", closed: true, sort: true, first: ["コラボ","近郊"], tags: ["Akira","Batsu","dtto.","eoheoh","FB777","KIKKUN-MK-Ⅱ","takera","YASU","あろまほっと","おおはらMEN","おらふくん","おんりー","きりやん","クー","ぐちつぼ","しにがみ","しのり","シャークん","しるこ","ズズ","たけぉ","たらこ","ちーの","ドズル","トラゾー","なな湖","ならの","にごんご","ぴくと","ひげおやじ","ひょう太朗","ひろゆき","ふうはや","ぺいんと","ぼんじゅうる","ポン酢野郎","むつー","メッス","もふ","らっだぁ","りもこん","ろぜっくぴん","んそめ","雨栗","越山嘉祈","魁星","金豚きょー","最高コーラ","秋雪こはく","焼きパン","水月ルザク","赤髪のとも","天唄サウ","飛良ひかり","米将軍","堀西","夢咲ひぽぽ","律可","クロノア","みずき","ヒラ","コラボ","近郊"] },
   ];
   const EXCLUDE_RULES = [
     { label: "コラボ動画を非表示にする", all: ["コラボ"] },
@@ -299,7 +300,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
       const rest = tags.filter((t) => !first.includes(t)).sort((a, b) => a.localeCompare(b, "ja"));
       tags = [...first, ...rest];
     }
-    return { name: g.name, tags };
+    return { name: g.name, tags, closed: g.closed };
   });
   const known = new Set(groups.flatMap((g) => g.tags));
   const extra = [];
@@ -325,6 +326,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line
     $("panels").append(h("section", { class: "panel" },
       h("h2", { class: "panel-head" }, toggle, h("span", { class: "panel-name", text: g.name }), meta), body));
     panelRefs.push(p);
+    if (g.closed) setOpen(p, false);
   }
   groups.forEach((g) => addPanel(g, (body) => {
     g.tags.forEach((t) => {
